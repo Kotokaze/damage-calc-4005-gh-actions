@@ -2,7 +2,7 @@
 
 name: Damage Calculation Test
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -26,8 +26,20 @@ jobs:
       # Runs a single command using the runners shell
       - name: Use Node.js v10.14.2
         uses: actions/setup-node@v1
-        with: 
+        with:
           node-version: '10.14.2'
-      
+
       - run: yarn install
-      - run: yarn test
+
+      - name: Install JUnit coverage reporter
+        run: yarn add --dev jest-junit
+
+      - name: Run tests with JUnit as reporter
+        run: npx jest --ci --runInBand --reporters=default --reporters=jest-junit
+        env:
+          JEST_JUNIT_OUTPUT_DIR: "./junit/test-results.xml"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./junit/test-results.xml
+        if: always()
